@@ -81,16 +81,17 @@ func main() {
 					if ok == false {
 						debugLog("cksum not found..")
 						cksums[secretName] = cksum(secret)
-						strs = strs + string(secret) + "\n"
+						strs = strs + string(secret)
 						changeFlag = true
 					} else {
 						if v != cksum(secret) {
 							debugLog("cksum found, and not equal cksum!")
 							cksums[secretName] = cksum(secret)
-							strs = strs + string(secret) + "\n"
+							strs = strs + string(secret)
 							changeFlag = true
 						} else {
 							debugLog("cksum found, and cksum no change.")
+							strs = strs + string(secret)
 						}
 					}
 				} else {
@@ -156,7 +157,7 @@ func readSecret(secretName, region string) string {
 	}
 	var secretString string = *result.SecretString
 
-	debugLog("secret: " + secretString)
+	//debugLog("secret: " + secretString)
 	return secretString
 }
 
