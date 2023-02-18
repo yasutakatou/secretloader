@@ -1,47 +1,74 @@
-// Use this code snippet in your app.
-// If you need more information about configurations or implementing the sample code, visit the AWS docs:   
-// https://aws.github.io/aws-sdk-go-v2/docs/getting-started/
-
 package main
 
 import (
-	"context"
-	"log"
+	"bufio"
 	"fmt"
-
-	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/config"
-	"github.com/aws/aws-sdk-go-v2/service/secretsmanager"
+	"io"
+	"os"
 )
 
+var (
+	secretName   string = ""
+	region       string = "ap-northeast-1"
+	versionStage string = "AWSCURRENT"
+)
+
+https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html
+
 func main() {
-	secretName := "slabot_ALLOWID"
-	region := "us-east-1"
+	// svc := secretsmanager.New(
+	// 	session.New(),
+	// 	aws.NewConfig().WithRegion(region),
+	// )
 
-	config, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion(region))
-	if err != nil {
-		log.Fatal(err)
+	// input := &secretsmanager.GetSecretValueInput{
+	// 	SecretId:     aws.String(secretName),
+	// 	VersionStage: aws.String(versionStage),
+	// }
+
+	// result, err := svc.GetSecretValue(input)
+	// if err != nil {
+	// 	panic(err.Error())
+	// }
+	// var secretString string = *result.SecretString
+
+	// fmt.Println(secretString)
+
+	name := "sample.txt"
+
+	f, _ := os.Open(name)
+	bu := bufio.NewReaderSize(f, 1024)
+
+	for {
+		line, _, err := bu.ReadLine()
+		if err == io.EOF {
+			break
+		}
+		fmt.Printf("%s\n", line)
 	}
-
-	// Create Secrets Manager client
-	svc := secretsmanager.NewFromConfig(config)
-
-	input := &secretsmanager.GetSecretValueInput{
-		SecretId:     aws.String(secretName),
-		VersionStage: aws.String("AWSCURRENT"), // VersionStage defaults to AWSCURRENT if unspecified
-	}
-
-	result, err := svc.GetSecretValue(context.TODO(), input)
-	if err != nil {
-		// For a list of exceptions thrown, see
-		// https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
-		log.Fatal(err.Error())
-	}
-
-	// Decrypts secret using the associated KMS key.
-	var secretString string = *result.SecretString
-
-	fmt.Println(secretString)
-
-	// Your code goes here.
 }
+
+/*
+-secretStr={}
+-onlyOnce
+-loop=30
+
+[ALERT]
+{SECRET1}
+[ALLOWID]
+{SECRET2}
+{SECRET3}
+[REJECT]
+rejectrule1	escalation1	rm	passwd	vi
+[HOSTS]
+hostlabel1	pi1	192.168.0.1	22	pi1	myPassword1	/bin/bash
+hostlabel2	pi2	192.168.0.2	22	pi2	myPassword2	/bin/ash
+[USERS]
+U024ZT3BHU5	~/	0
+[ALLOW]
+allowrule1	escalation1	cd	ls	cat	ps	df	find
+[ADMINS]
+admin
+[REPORT]
+C0256BTKP54
+*/
