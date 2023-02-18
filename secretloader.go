@@ -59,12 +59,6 @@ func main() {
 		tmpFilename := RandStr(8)
 		strs := ""
 
-		file, err := os.Create(tmpFilename)
-		if err != nil {
-			log.Fatal(err)
-		}
-		defer file.Close()
-
 		f, _ := os.Open(*_inputFile)
 		bu := bufio.NewReaderSize(f, 1024)
 
@@ -96,8 +90,15 @@ func main() {
 							strs = strs + string(secret) + "\n"
 							changeFlag = true
 						} else {
-							debugLog("cksum found, and cksum.")
+							debugLog("cksum found, and cksum no change.")
 						}
+					}
+				} else {
+					_, ok := cksums[secretName]
+					if ok == true {
+						debugLog("secret delete!")
+						delete(cksums, secretName)
+						changeFlag = true
 					}
 				}
 			} else {
@@ -107,7 +108,18 @@ func main() {
 		f.Close()
 
 		if changeFlag == true {
-			writeString(file, strs)
+			fmt.Println("config file update!: " + *_outputFile)
+
+			file, err := os.Create(tmpFilename)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			_, err = file.WriteString(strs)
+			if err != nil {
+				log.Fatal(err)
+			}
+
 			file.Close()
 			fileCopy(tmpFilename, *_outputFile)
 			if err := os.Remove(tmpFilename); err != nil {
@@ -119,16 +131,9 @@ func main() {
 			break
 		}
 
-		time.Sleep(time.Minute * time.Duration(*_loopDuration))
+		time.Sleep(time.Second * time.Duration(*_loopDuration))
 	}
 	os.Exit(0)
-}
-
-func writeString(file *os.File, str string) {
-	_, err := file.WriteString(str)
-	if err != nil {
-		log.Fatal(err)
-	}
 }
 
 func readSecret(secretName, region string) string {
@@ -151,13 +156,12 @@ func readSecret(secretName, region string) string {
 	}
 	var secretString string = *result.SecretString
 
-	fmt.Println(secretString)
+	debugLog("secret: " + secretString)
 	return secretString
 }
 
 func cksum(data string) uint64 {
 	crcTable := crc64.MakeTable(crc64.ECMA)
-	fmt.Println(crc64.Checksum([]byte(data), crcTable))
 	return crc64.Checksum([]byte(data), crcTable)
 }
 
