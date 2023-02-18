@@ -15,6 +15,7 @@ import (
 	"hash/crc64"
 	"io"
 	"log"
+	"math/rand"
 	"os"
 	"time"
 
@@ -24,11 +25,18 @@ import (
 )
 
 var (
-	debug   bool
-	logging bool
+	debug      bool
+	logging    bool
+	rs1Letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 )
 
+func init() {
+	rand.Seed(time.Now().UnixNano())
+}
+
 func main() {
+	var changeFlag bool
+
 	cksums := map[string]uint64{}
 
 	_secretStr := flag.String("secretStr", "{}", "[-secretStr=Symbol to define the secret name. ex. []")
@@ -44,16 +52,19 @@ func main() {
 
 	debug = bool(*_Debug)
 	logging = bool(*_Logging)
-
 	secretStr := string(*_secretStr)
 
-	file, err := os.Create(*_outputFile)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer file.Close()
-
 	for {
+		changeFlag = false
+		tmpFilename := RandStr(8)
+		strs := ""
+
+		file, err := os.Create(tmpFilename)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer file.Close()
+
 		f, _ := os.Open(*_inputFile)
 		bu := bufio.NewReaderSize(f, 1024)
 
@@ -63,33 +74,46 @@ func main() {
 				break
 			}
 
-			debugLog("line: " + line)
+			debugLog("line: " + string(line))
 
 			if secretStr[0] == line[0] && secretStr[len(secretStr)-1] == line[len(line)-1] {
 				secretName := string(string(line[1 : len(line)-1]))
 				debugLog("match secret! :" + secretName)
 				secret := readSecret(secretName, *_region)
 
-				v, ok := cksums[secretName]
+				if secret != "" {
+					v, ok := cksums[secretName]
 
-				if ok == false {
-					debugLog("cksum not found..")
-					cksums[secretName] = cksum(secret)
-					writeString(file, string(line))
-				} else {
-					if v != cksum(secret) {
-						debugLog("cksum found, and not equal cksum!")
+					if ok == false {
+						debugLog("cksum not found..")
 						cksums[secretName] = cksum(secret)
-						writeString(file, string(line))
+						strs = strs + string(secret) + "\n"
+						changeFlag = true
 					} else {
-						debugLog("cksum found, and cksum.")
+						if v != cksum(secret) {
+							debugLog("cksum found, and not equal cksum!")
+							cksums[secretName] = cksum(secret)
+							strs = strs + string(secret) + "\n"
+							changeFlag = true
+						} else {
+							debugLog("cksum found, and cksum.")
+						}
 					}
 				}
 			} else {
-				writeString(file, string(line))
+				strs = strs + string(line) + "\n"
 			}
 		}
 		f.Close()
+
+		if changeFlag == true {
+			writeString(file, strs)
+			file.Close()
+			fileCopy(tmpFilename, *_outputFile)
+			if err := os.Remove(tmpFilename); err != nil {
+				debugLog("file delete failed!: " + tmpFilename)
+			}
+		}
 
 		if *_onlyOnce == true {
 			break
@@ -101,7 +125,7 @@ func main() {
 }
 
 func writeString(file *os.File, str string) {
-	_, err := file.WriteString(str + "\n")
+	_, err := file.WriteString(str)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -172,4 +196,32 @@ func debugLog(message string) {
 func Exists(filename string) bool {
 	_, err := os.Stat(filename)
 	return err == nil
+}
+
+func RandStr(n int) string {
+	b := make([]rune, n)
+	for i := range b {
+		b[i] = rs1Letters[rand.Intn(len(rs1Letters))]
+	}
+	return string(b)
+}
+
+func fileCopy(srcName, dstName string) {
+
+	src, err := os.Open(srcName)
+	if err != nil {
+		panic(err)
+	}
+	defer src.Close()
+
+	dst, err := os.Create(dstName)
+	if err != nil {
+		panic(err)
+	}
+	defer dst.Close()
+
+	_, err = io.Copy(dst, src)
+	if err != nil {
+		panic(err)
+	}
 }
