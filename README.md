@@ -1,4 +1,4 @@
-# (WIP) secretloader
+# secretloader
 
 A tool that leverages AWS Secrets Manager to create a config file.
 
