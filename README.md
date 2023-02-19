@@ -95,7 +95,9 @@ Run in the mode that outputs various logs.
 
 ## -inputFile
 
+Specify a template file
 
+note) You can use template files outside the current directory by specifying the path.
 
 ## -log
 
@@ -103,19 +105,36 @@ Specify the log file name.
 
 ## -loopDuration
 
+In loop mode, this is the interval at which to loop.
+
+note) The unit is minutes. The default is one day at 1440 minutes.
 
 ## -onlyOnce
 
+This mode does not loop the operation.
+
+note) Enabled by default
 
 ## -outputFile
 
+Specify the output file name
+
+note) You can create a file in a directory other than the current directory by specifying the path
+note) The original file will be overwritten
 
 ## -region
 
+Specify the region from which to read the AWS Secret Manager key
 
 ## -secretStr
 
+Replace {} with another character specifying the secret name
 
+note) Please make sure to specify with two letters. ex) [],"",<>,'' etc.
+
+# Why the action of creating and overwriting a temporary configuration file?
+
+Because exporting one line at a time will cause tools that support hot-loading of configuration files to behave incorrectly.
 
 # license
 
