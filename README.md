@@ -106,10 +106,57 @@ note) In the example below, IAM users for ProfileA and ProfileB have been create
 
 ![image](https://user-images.githubusercontent.com/22161385/219946029-b1b0c919-8d82-46bc-b379-ebd784897b8a.png)
 
-
+Register the profile as it is in the Secret Manager.
 
 ![image](https://user-images.githubusercontent.com/22161385/219946088-1785f520-d8d3-404b-8add-99a98578bbef.png)
 
+Configure the OS to start the following script when the PC starts up.
+
+```
+#!/bin/bash
+
+export AWS_PROFILE=ProfileA
+secretloader -outputFile=${HOME}/.aws/credentials
+if [ $? -ne 0 ]; then
+   export AWS_PROFILE=ProfileB
+   secretloader -outputFile=${HOME}/.aws/credentials
+fi
+```
+
+Now the profile will be created with the ProfileA information every time when the PC starts up!
+
+```
+$ bash -x update.sh
++ export AWS_PROFILE=ProfileA
++ AWS_PROFILE=ProfileA
++ ./secretloader -outputFile=credentials
+config file update!: credentials
++ '[' 0 -ne 0 ']'
+```
+
+Update the credentials in ProfileA when it is time to update the credentials.
+Reflect the updated AWS_SECRET_ACCESS_KEY in the registered Secret Manager.
+
+note) Update AWS_SECRET_ACCESS_KEY; do not change AWS_ACCESS_KEY_ID.
+
+At the next execution, the profile generation fails because ProfileA cannot be read, but a profile with the new ProfileA information is generated because the read in ProfileB is generated continuously.
+
+```
+$ bash -x update.sh
++ export AWS_PROFILE=ProfileA
++ AWS_PROFILE=ProfileA
++ ./secretloader -outputFile=/home/ady/.aws/credentials
+secret not found! :SECRET1
++ '[' 1 -ne 0 ']'
++ export AWS_PROFILE=ProfileB
++ AWS_PROFILE=ProfileB
++ ./secretloader -outputFile=/home/ady/.aws/credentials
+config file update!: /home/ady/.aws/credentials
+```
+
+The credentials for ProfileB can be rotated by allowing time for the new ProfileA information to percolate, and then updating the credentials for ProfileB.
+
+note) I'm assuming the script will run, so you shouldn't rotate it before summer vacation or before a long break. :)
 
 # options
 
