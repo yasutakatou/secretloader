@@ -48,6 +48,19 @@ delete that binary. del or rm command. (it's simple!)
 - Register the information you wish to embed in Secrets Manager
 
 note) Please register with Secret Manager in plain text.
+note) It works even if you don't use profiles and set credentials in environment variables.
+
+```
+export AWS_ACCESS_KEY_ID=XXXXX
+export AWS_SECRET_ACCESS_KEY=XXXXX
+export AWS_DEFAULT_REGION=us-east-2
+```
+
+The profile for Windows is here.
+
+```
+notepad %USERPROFILE%\.aws\credentials
+```
 
 # Template file
 
@@ -129,7 +142,7 @@ Now the profile will be created with the ProfileA information every time when th
 $ bash -x update.sh
 + export AWS_PROFILE=ProfileA
 + AWS_PROFILE=ProfileA
-+ ./secretloader -outputFile=credentials
++ ./secretloader -outputFile=/home/ady/.aws/credentials
 config file update!: credentials
 + '[' 0 -ne 0 ']'
 ```
@@ -157,6 +170,7 @@ config file update!: /home/ady/.aws/credentials
 The credentials for ProfileB can be rotated by allowing time for the new ProfileA information to percolate, and then updating the credentials for ProfileB.
 
 note) I'm assuming the script will run, so you shouldn't rotate it before summer vacation or before a long break. :)
+note) If you want to rotate other credentials, you can do so by creating two IAMs and modifying the script in the same way.
 
 # options
 
