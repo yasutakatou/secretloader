@@ -47,6 +47,8 @@ delete that binary. del or rm command. (it's simple!)
 - Create a template file that matches the configuration file you wish to generate.
 - Register the information you wish to embed in Secrets Manager
 
+note) Please register with Secret Manager in plain text.
+
 # Template file
 
 {}, the name of the Secrets Manager will be read from AWS. Other lines are output as is.
@@ -63,9 +65,51 @@ note) Plain text in the Secrets Manager is output as is, even if it is multi-lin
 # Usecase
 ## 1. Generate configuration file
 
+For example, if you have the following configuration file and you want to keep the myPassword part secret
+
+![image](https://user-images.githubusercontent.com/22161385/219945429-30bd87d5-c37d-4148-bc09-92312712f935.png)
+
+Register the following in plain text in Secret Manager.
+
+![image](https://user-images.githubusercontent.com/22161385/219945518-f820ac47-6b9d-4794-96c8-f352e1034c58.png)
+
+Prepare template files. {} to enclose the name registered in Secret Manager.
+
+![image](https://user-images.githubusercontent.com/22161385/219945634-4284c808-4f23-457b-927e-b802844b0f3b.png)
+
+When the command is executed, a config file is generated.
+
+```
+$ secretloader -outputFile=slabot.ini
+config file update!: slabot.ini
+```
+
 ## 2. Operate in loop mode
 
+Periodically access the Secret Manager and generate configuration files only when there are differences in the Secret.
+
+note) The first run always creates a configuration file.
+note) Checksum of Secret is checked, so if there is no difference, no new configuration file is created.
+
 ## 3. Rotating operation of AWS credentials
+
+note) There are many ways to do this, but here are a few I've tried.
+
+Prepare a template file that reads a single secret.
+
+![image](https://user-images.githubusercontent.com/22161385/219945894-8b744f56-3290-4c0e-8a80-8642b2d46017.png)
+
+Create two IAM users with access to Secret Manager.
+and,  Register those two in your AWS profile
+
+note) In the example below, IAM users for ProfileA and ProfileB have been created and registered
+
+![image](https://user-images.githubusercontent.com/22161385/219946029-b1b0c919-8d82-46bc-b379-ebd784897b8a.png)
+
+
+
+![image](https://user-images.githubusercontent.com/22161385/219946088-1785f520-d8d3-404b-8add-99a98578bbef.png)
+
 
 # options
 
