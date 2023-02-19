@@ -129,10 +129,13 @@ func main() {
 		}
 
 		if *_onlyOnce == true {
-			break
+			if changeFlag == true {
+				os.Exit(0)
+			} else {
+				os.Exit(1)
+			}
 		}
-
-		time.Sleep(time.Second * time.Duration(*_loopDuration))
+		time.Sleep(time.Minute * time.Duration(*_loopDuration))
 	}
 	os.Exit(0)
 }
