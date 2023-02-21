@@ -47,6 +47,7 @@ func main() {
 	_Logging := flag.Bool("log", false, "[-log=logging mode (true is enable)]")
 	_outputFile := flag.String("outputFile", "config.ini", "[-outputFile=Output file name and its path.")
 	_region := flag.String("region", "us-east-2", "[-region=AWS region.  (default: us-east-2)")
+	_backup := flag.Bool("backup", true, "[-backup=origin config backup mode (true is enable)]")
 
 	flag.Parse()
 
@@ -110,6 +111,14 @@ func main() {
 
 		if changeFlag == true {
 			fmt.Println("config file update!: " + *_outputFile)
+
+			if *_backup == true {
+				const layout = "2006-01-02_15"
+				t := time.Now()
+				if err := os.Rename(*_outputFile, *_outputFile+"_"+t.Format(layout)); err != nil {
+					debugLog("file backup failed!: " + *_outputFile)
+				}
+			}
 
 			file, err := os.Create(tmpFilename)
 			if err != nil {
