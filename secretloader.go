@@ -71,7 +71,7 @@ func main() {
 
 			debugLog("line: " + string(line))
 
-			if secretStr[0] == line[0] && secretStr[len(secretStr)-1] == line[len(line)-1] {
+			if len(line) > 2 && secretStr[0] == line[0] && secretStr[len(secretStr)-1] == line[len(line)-1] {
 				secretName := string(string(line[1 : len(line)-1]))
 				debugLog("match secret! :" + secretName)
 				secret := readSecret(secretName, *_region)
