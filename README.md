@@ -2,6 +2,11 @@
 
 A tool that leverages AWS Secrets Manager to create a config file.
 
+### v0.2
+
+- Added support for original file backup mode.
+	-  The output destination file was forced to be overwritten, so it was backed up.
+
 # Solution
 
 You work with a variety of tools every day. Do you have any of the following problems?
@@ -11,6 +16,7 @@ You work with a variety of tools every day. Do you have any of the following pro
 
 I think there is a way to use 1Password for credential management. However, you can't eliminate both. It would also cost more money. :)
 With this tool, you can eliminate both, plus you can manage everything, including terraform, in code(IaC)!
+It works on both Linux and Windows! (or MacOS if you compile it)
 
 # Feature
 
@@ -43,24 +49,49 @@ delete that binary. del or rm command. (it's simple!)
 
 # Setup
 
-- Create an IAM user with Secrets Manager access in AWS and pay out credentials
-- Create a template file that matches the configuration file you wish to generate.
-- Register the information you wish to embed in Secrets Manager
+There are three ways to set up authentication as described in the SDK documentation below.
+
+[Configuring the AWS SDK for Go V2](https://aws.github.io/aws-sdk-go-v2/docs/configuring-sdk/)
+
+## Authentication and Authorization Settings
+
+1) OS Environment
+
+How to create an IAM user and define credentials in OS environment variables.
+
+```
+$ export AWS_ACCESS_KEY_ID=YOUR_AKID
+$ export AWS_SECRET_ACCESS_KEY=YOUR_SECRET_KEY
+```
+
+2) Profile
+
+How to create an IAM user and add credentials to the profile.
+
+```
+[yourprofile]
+aws_access_key_id = <YOUR_TEST_ACCESS_KEY_ID>
+aws_secret_access_key = <YOUR_TEST_SECRET_ACCESS_KEY>
+```
+
+3) IAM Role
+
+This is a method of creating IAM roles and assigning them to AWS resources such as EC2.
+
+![image](https://user-images.githubusercontent.com/22161385/220613961-cdae378a-11ea-4e33-8309-71004340ce91.png)
+
+note) It is secure because it does not dispense credentials.
+
+## Create a template file
+
+Create a template file that matches the configuration file you wish to generate.
+
+## Register the secret information to be replaced in the Secret Manager.
+
+Register the information you wish to embed in Secrets Manager
 
 note) Please register with Secret Manager in plain text.
 note) It works even if you don't use profiles and set credentials in environment variables.
-
-```
-export AWS_ACCESS_KEY_ID=XXXXX
-export AWS_SECRET_ACCESS_KEY=XXXXX
-export AWS_DEFAULT_REGION=us-east-2
-```
-
-The profile for Windows is here.
-
-```
-notepad %USERPROFILE%\.aws\credentials
-```
 
 # Template file
 
@@ -106,7 +137,7 @@ note) Checksum of Secret is checked, so if there is no difference, no new config
 
 ## 3. Rotating operation of AWS credentials
 
-note) There are many ways to do this, but here are a few I've tried.
+note) There are many ways to do this, but here are a few I've tried. Assume a case where credentials are scattered on each engineer's PC.
 
 Prepare a template file that reads a single secret.
 
@@ -176,6 +207,8 @@ note) If you want to rotate other credentials, you can do so by creating two IAM
 
 ```
 Usage of ./secretloader:
+  -backup
+        [-backup=origin config backup mode (true is enable)] (default true)
   -debug
         [-debug=debug mode (true is enable)]
   -inputFile string
@@ -193,6 +226,12 @@ Usage of ./secretloader:
   -secretStr string
         [-secretStr=Symbol to define the secret name. ex. [] (default "{}")
 ```
+
+## -backup
+
+Backup the output destination file, if one exists.
+
+note) Enabled by default
 
 ## -debug
 
@@ -225,7 +264,6 @@ note) Enabled by default
 Specify the output file name
 
 note) You can create a file in a directory other than the current directory by specifying the path
-note) The original file will be overwritten
 
 ## -region
 
