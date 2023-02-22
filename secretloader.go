@@ -3,7 +3,7 @@
  *
  * @author    yasutakatou
  * @copyright 2023 yasutakatou
- * @license   xxx
+ * @license   Apache-2.0 License, BSD-3-Clause License
  */
 package main
 
@@ -112,7 +112,7 @@ func main() {
 		if changeFlag == true {
 			fmt.Println("config file update!: " + *_outputFile)
 
-			if *_backup == true {
+			if *_backup == true && Exists(*_outputFile) == true {
 				const layout = "2006-01-02_15"
 				t := time.Now()
 				if err := os.Rename(*_outputFile, *_outputFile+"_"+t.Format(layout)); err != nil {
