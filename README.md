@@ -1,6 +1,6 @@
 # secretloader
 
-A tool that leverages AWS Secrets Manager to create a config file.
+**A tool that leverages AWS Secrets Manager to create a config file.**
 
 ### v0.2
 
@@ -14,9 +14,9 @@ You work with a variety of tools every day. Do you have any of the following pro
 - To keep configuration management of legacy tools with individual configuration files confidential and to do it in the cloud
 - I want to stop managing credentials without rotation.
 
-I think there is a way to use 1Password for credential management. However, you can't eliminate both. It would also cost more money. :)
-With this tool, you can eliminate both, plus you can manage everything, including terraform, in code(IaC)!
-It works on both Linux and Windows! (or MacOS if you compile it)
+I think there is a way to use 1Password for credential management. However, you can't eliminate both. It would also cost more money. :)<br>
+With this tool, you can eliminate both, plus you can manage everything, including terraform, in code(IaC)!!<br>
+It works on both Linux and Windows! (or MacOS if you compile it)<br>
 
 # Feature
 
@@ -88,9 +88,9 @@ Create a template file that matches the configuration file you wish to generate.
 
 ## Register the secret information to be replaced in the Secret Manager.
 
-Register the information you wish to embed in Secrets Manager
+Register the information you wish to embed in Secrets Manager<br>
 
-note) Please register with Secret Manager in plain text.
+note) Please register with Secret Manager in plain text.<br>
 note) It works even if you don't use profiles and set credentials in environment variables.
 
 # Template file
@@ -103,7 +103,7 @@ note) It works even if you don't use profiles and set credentials in environment
 {SECRET2}
 ```
 
-note) The {} character can be customized by specifying options.
+note) The {} character can be customized by specifying options.<br>
 note) Plain text in the Secrets Manager is output as is, even if it is multi-line or tab-delimited.
 
 # Usecase
@@ -130,23 +130,23 @@ config file update!: slabot.ini
 
 ## 2. Operate in loop mode
 
-Periodically access the Secret Manager and generate configuration files only when there are differences in the Secret.
+Periodically access the Secret Manager and generate configuration files only when there are differences in the Secret.<br>
 
-note) The first run always creates a configuration file.
+note) The first run always creates a configuration file.<br>
 note) Checksum of Secret is checked, so if there is no difference, no new configuration file is created.
 
 ## 3. Rotating operation of AWS credentials
 
-note) There are many ways to do this, but here are a few I've tried. Assume a case where credentials are scattered on each engineer's PC.
-
-Prepare a template file that reads a single secret.
+note) There are many ways to do this, but here are a few I've tried. Assume a case where credentials are scattered on each engineer's PC.<br>
+<br>
+Prepare a template file that reads a single secret.<br>
 
 ![image](https://user-images.githubusercontent.com/22161385/219945894-8b744f56-3290-4c0e-8a80-8642b2d46017.png)
 
-Create two IAM users with access to Secret Manager.
-and,  Register those two in your AWS profile
+Create two IAM users with access to Secret Manager.<br>
+and,  Register those two in your AWS profile<br>
 
-note) In the example below, IAM users for ProfileA and ProfileB have been created and registered
+note) In the example below, IAM users for ProfileA and ProfileB have been created and registered<br>
 
 ![image](https://user-images.githubusercontent.com/22161385/219946029-b1b0c919-8d82-46bc-b379-ebd784897b8a.png)
 
@@ -178,12 +178,12 @@ config file update!: credentials
 + '[' 0 -ne 0 ']'
 ```
 
-Update the credentials in ProfileA when it is time to update the credentials.
-Reflect the updated AWS_SECRET_ACCESS_KEY in the registered Secret Manager.
+Update the credentials in ProfileA when it is time to update the credentials.<br>
+Reflect the updated AWS_SECRET_ACCESS_KEY in the registered Secret Manager.<br>
 
-note) Update AWS_SECRET_ACCESS_KEY; do not change AWS_ACCESS_KEY_ID.
+note) Update AWS_SECRET_ACCESS_KEY; do not change AWS_ACCESS_KEY_ID.<br>
 
-At the next execution, the profile generation fails because ProfileA cannot be read, but a profile with the new ProfileA information is generated because the read in ProfileB is generated continuously.
+At the next execution, the profile generation fails because ProfileA cannot be read, but a profile with the new ProfileA information is generated because the read in ProfileB is generated continuously.<br>
 
 ```
 $ bash -x update.sh
@@ -198,9 +198,9 @@ secret not found! :SECRET1
 config file update!: /home/ady/.aws/credentials
 ```
 
-The credentials for ProfileB can be rotated by allowing time for the new ProfileA information to percolate, and then updating the credentials for ProfileB.
+The credentials for ProfileB can be rotated by allowing time for the new ProfileA information to percolate, and then updating the credentials for ProfileB.<br>
 
-note) I'm assuming the script will run, so you shouldn't rotate it before summer vacation or before a long break. :)
+note) I'm assuming the script will run, so you shouldn't rotate it before summer vacation or before a long break. :)<br>
 note) If you want to rotate other credentials, you can do so by creating two IAMs and modifying the script in the same way.
 
 # options
@@ -229,9 +229,9 @@ Usage of ./secretloader:
 
 ## -backup
 
-Backup the output destination file, if one exists.
+Backup the output destination file, if one exists.<br>
 
-note) Enabled by default
+note) Enabled by default<br>
 
 ## -debug
 
@@ -239,9 +239,9 @@ Run in the mode that outputs various logs.
 
 ## -inputFile
 
-Specify a template file
+Specify a template file<br>
 
-note) You can use template files outside the current directory by specifying the path.
+note) You can use template files outside the current directory by specifying the path.<br>
 
 ## -log
 
@@ -249,21 +249,21 @@ Specify the log file name.
 
 ## -loopDuration
 
-In loop mode, this is the interval at which to loop.
+In loop mode, this is the interval at which to loop.<br>
 
-note) The unit is minutes. The default is one day at 1440 minutes.
+note) The unit is minutes. The default is one day at 1440 minutes.<br>
 
 ## -onlyOnce
 
-This mode does not loop the operation.
+This mode does not loop the operation.<br>
 
-note) Enabled by default
+note) Enabled by default<br>
 
 ## -outputFile
 
-Specify the output file name
+Specify the output file name<br>
 
-note) You can create a file in a directory other than the current directory by specifying the path
+note) You can create a file in a directory other than the current directory by specifying the path<br>
 
 ## -region
 
@@ -271,9 +271,9 @@ Specify the region from which to read the AWS Secret Manager key
 
 ## -secretStr
 
-Replace {} with another character specifying the secret name
+Replace {} with another character specifying the secret name<br>
 
-note) Please make sure to specify with two letters. ex) [],"",<>,'' etc.
+note) Please make sure to specify with two letters. ex) [],"",<>,'' etc.<br>
 
 # Why the action of creating and overwriting a temporary configuration file?
 
@@ -281,5 +281,5 @@ Because exporting one line at a time will cause tools that support hot-loading o
 
 # license
 
-Apache-2.0 License
+Apache-2.0 License<br>
 BSD-3-Clause License
